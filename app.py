@@ -1,12 +1,11 @@
 """
-ห้องลองชุด AI — เว็บแอป Python (Flask) + FASHN VTON v1.5 (รันในเครื่อง)
+AI Fitting Room — Python (Flask) web app + FASHN VTON v1.5 (runs locally)
 
-โฟลเดอร์:
-  wardrobe/<male|female>/<top|shorts|pants|skirt|dress>/   รูปเสื้อผ้า (วางไฟล์เองก็ได้)
-  results/                                                ภาพที่ AI สร้าง
-เปิดใช้งาน: python app.py  แล้วเข้า http://127.0.0.1:8765
+Folders:
+  wardrobe/<male|female>/<top|shorts|pants|skirt|dress>/   clothing photos (you can drop files here directly)
+  results/                                                generated try-on images
+Run: python app.py   then open http://127.0.0.1:8765
 """
-import io
 import json
 import os
 import threading
@@ -15,7 +14,7 @@ import traceback
 import uuid
 from pathlib import Path
 
-os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")  # op ที่ Mac GPU ไม่รองรับ → ใช้ CPU แทน
+os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")  # ops unsupported on Apple GPU fall back to CPU
 HERE = Path(__file__).resolve().parent
 os.environ.setdefault("HF_HOME", str(HERE / "hf-cache"))
 
@@ -26,14 +25,14 @@ WARDROBE = HERE / "wardrobe"
 RESULTS = HERE / "results"
 WEIGHTS = HERE / "weights"
 PORT = int(os.environ.get("TRYON_PORT", "8765"))
-MOCK = os.environ.get("FASHN_MOCK") == "1"  # ทดสอบหน้าเว็บโดยไม่โหลดโมเดล
+MOCK = os.environ.get("FASHN_MOCK") == "1"  # test the UI without loading the model
 
 CATS = {
-    "male": {"label": "ชาย", "items": [["top", "เสื้อ"], ["shorts", "กางเกงขาสั้น"], ["pants", "กางเกงขายาว"]]},
-    "female": {"label": "หญิง", "items": [["top", "เสื้อ"], ["shorts", "กางเกงขาสั้น"], ["pants", "กางเกงขายาว"],
-                                          ["skirt", "กระโปรง"], ["dress", "เดรส"]]},
+    "male": {"label": "Men", "items": [["top", "Tops"], ["shorts", "Shorts"], ["pants", "Trousers"]]},
+    "female": {"label": "Women", "items": [["top", "Tops"], ["shorts", "Shorts"], ["pants", "Trousers"],
+                                          ["skirt", "Skirts"], ["dress", "Dresses"]]},
 }
-# หมวดในเว็บ → หมวดของ FASHN VTON
+# app category -> FASHN VTON category
 FASHN_CAT = {"top": "tops", "shorts": "bottoms", "pants": "bottoms", "skirt": "bottoms", "dress": "one-pieces"}
 IMG_EXT = {".jpg", ".jpeg", ".png", ".webp"}
 
@@ -63,8 +62,8 @@ def pick_device():
 
 
 def patch_for_mps():
-    """Mac GPU (MPS) ไม่รองรับ float64 ซึ่งโมเดลใช้ตอนคำนวณ RoPE
-    → คำนวณส่วนนี้บน CPU (ค่าเหมือนเดิมทุกประการ) แล้วย้ายผลกลับไป GPU"""
+    """Apple GPU (MPS) does not support float64, which the model uses for RoPE.
+    Compute that small step on CPU (bit-identical result) and move it back to the GPU."""
     from fashn_vton import tryon_mmdit
     if getattr(tryon_mmdit.rope, "_mps_patched", False):
         return
@@ -88,10 +87,10 @@ def load_model():
         patch_for_mps()
         from fashn_vton import TryOnPipeline
         dev = pick_device()
-        print(f"[AI] กำลังโหลดโมเดลบน {dev} ...", flush=True)
+        print(f"[AI] Loading model on {dev} ...", flush=True)
         pipe = TryOnPipeline(weights_dir=str(WEIGHTS), device=dev)
         state.update(status="ready", device=dev)
-        print(f"[AI] พร้อมใช้งาน ({dev})", flush=True)
+        print(f"[AI] Ready ({dev})", flush=True)
     except Exception as e:  # noqa: BLE001
         traceback.print_exc()
         state.update(status="error", error=str(e))
@@ -99,7 +98,7 @@ def load_model():
 
 def run_one(person, garment, category, photo_type, steps, seed):
     global pipe
-    if MOCK:  # ภาพจำลองสำหรับทดสอบ
+    if MOCK:  # fake result for testing
         time.sleep(0.2)
         out = person.copy()
         g = garment.copy()
@@ -113,7 +112,7 @@ def run_one(person, garment, category, photo_type, steps, seed):
     except Exception:
         if state["device"] != "mps":
             raise
-        print("[AI] Mac GPU ทำงานไม่ได้กับโมเดลนี้ → สลับไปใช้ CPU (ช้ากว่า)", flush=True)
+        print("[AI] Apple GPU failed on this model -> switching to CPU (slower)", flush=True)
         traceback.print_exc()
         from fashn_vton import TryOnPipeline
         pipe = TryOnPipeline(weights_dir=str(WEIGHTS), device="cpu")
@@ -154,7 +153,7 @@ def list_clothes():
 # ---------------- routes ----------------
 @app.get("/")
 def index():
-    return render_template("index.html", cats_json=json.dumps(CATS, ensure_ascii=False))
+    return render_template("index.html", cats_json=json.dumps(CATS))
 
 
 @app.get("/api/health")
@@ -171,7 +170,7 @@ def api_clothes():
 def api_add_clothes():
     gender, cat = request.form.get("gender"), request.form.get("cat")
     if not valid(gender, cat):
-        abort(400, "หมวดไม่ถูกต้อง")
+        abort(400, "Invalid category")
     saved = 0
     for f in request.files.getlist("files"):
         try:
@@ -179,7 +178,7 @@ def api_add_clothes():
             img.save(WARDROBE / gender / cat / f"{int(time.time() * 1000)}-{uuid.uuid4().hex[:6]}.jpg", quality=92)
             saved += 1
         except Exception as e:  # noqa: BLE001
-            print("อ่านรูปไม่ได้:", f.filename, e)
+            print("Could not read image:", f.filename, e)
     return jsonify(saved=saved)
 
 
@@ -214,27 +213,27 @@ def api_results():
 @app.post("/api/tryon")
 def api_tryon():
     if state["status"] != "ready":
-        msg = "โมเดลกำลังโหลด รอสักครู่แล้วลองใหม่" if state["status"] == "loading" \
-            else f"โหลดโมเดลไม่สำเร็จ: {state['error']}"
+        msg = "The model is still loading. Please wait a moment and try again." if state["status"] == "loading" \
+            else f"Failed to load the model: {state['error']}"
         return jsonify(error=msg), 503
     if "person" not in request.files:
-        return jsonify(error="ยังไม่ได้อัพรูปคน"), 400
+        return jsonify(error="Please upload a photo of a person."), 400
     gender = request.form.get("gender")
     ids = json.loads(request.form.get("items", "[]"))
     photo_type = request.form.get("photo_type", "flat-lay")
     steps = max(10, min(50, int(request.form.get("steps", 30))))
     seed = int(request.form.get("seed", 42))
 
-    # ตรวจรายการ + เรียงลำดับ: ท่อนล่างก่อน แล้วค่อยเสื้อ (เสื้อทับกางเกงดูเป็นธรรมชาติกว่า)
+    # Validate items and order them: bottoms first, then tops (a top over trousers looks more natural)
     items = []
     for item_id in ids:
         g, c, name = item_id.split("/", 2)
         p = WARDROBE / g / c / name
         if g != gender or not valid(g, c) or not p.exists():
-            return jsonify(error=f"ไม่พบเสื้อผ้า: {item_id}"), 400
+            return jsonify(error=f"Clothing item not found: {item_id}"), 400
         items.append((c, p))
     if not items:
-        return jsonify(error="ยังไม่ได้เลือกเสื้อผ้า"), 400
+        return jsonify(error="Please select at least one clothing item."), 400
     order = {"dress": 0, "shorts": 1, "pants": 1, "skirt": 1, "top": 2}
     items.sort(key=lambda x: order[x[0]])
 
@@ -243,12 +242,12 @@ def api_tryon():
         t0 = time.time()
         with pipe_lock:
             for i, (c, p) in enumerate(items):
-                print(f"[AI] ชิ้นที่ {i + 1}/{len(items)}: {c} → {FASHN_CAT[c]} ({steps} steps)", flush=True)
+                print(f"[AI] Item {i + 1}/{len(items)}: {c} -> {FASHN_CAT[c]} ({steps} steps)", flush=True)
                 person = run_one(person, open_img(p), FASHN_CAT[c], photo_type, steps, seed)
         name = f"tryon-{time.strftime('%Y%m%d-%H%M%S')}-{uuid.uuid4().hex[:4]}.png"
         person.save(RESULTS / name)
         sec = round(time.time() - t0, 1)
-        print(f"[AI] เสร็จใน {sec} วินาที → results/{name}", flush=True)
+        print(f"[AI] Done in {sec}s -> results/{name}", flush=True)
         return jsonify(url=f"/results/{name}", seconds=sec, device=state["device"])
     except Exception as e:  # noqa: BLE001
         traceback.print_exc()
@@ -257,5 +256,5 @@ def api_tryon():
 
 if __name__ == "__main__":
     threading.Thread(target=load_model, daemon=True).start()
-    print(f"[เว็บ] เปิดที่ http://127.0.0.1:{PORT}  (ปิดหน้าต่างนี้เพื่อหยุด)", flush=True)
+    print(f"[Web] Open http://127.0.0.1:{PORT}  (close this window to stop)", flush=True)
     app.run(host="127.0.0.1", port=PORT, threaded=True)

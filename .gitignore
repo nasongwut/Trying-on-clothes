@@ -1,14 +1,14 @@
-# ไฟล์ที่ตัวติดตั้งดาวน์โหลด/สร้างให้เอง (ใหญ่เกินจะเก็บใน GitHub)
+# Downloaded/created by the installer (too large for GitHub)
 .venv/
 weights/
 hf-cache/
 fashn-vton-1.5/
 fashn.zip
 
-# ภาพที่ AI สร้าง
+# Generated try-on images
 results/
 
-# Python / ระบบ
+# Python / OS
 __pycache__/
 *.pyc
 .DS_Store

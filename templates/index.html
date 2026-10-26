@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="th">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ห้องลองชุด AI</title>
+<title>AI Fitting Room</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&family=Noto+Serif+Thai:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#f6f2ec; --card:#fffdf9; --ink:#231f1b; --muted:#7a7066; --line:#e4dbcf;
@@ -16,10 +16,10 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font-family:"Noto Sans Thai",system-ui,sans-serif;line-height:1.5}
+body{background:var(--bg);color:var(--ink);font-family:"Inter",system-ui,sans-serif;line-height:1.5}
 header{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .bar{max-width:1180px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.brand{font-family:"Noto Serif Thai",serif;font-weight:700;font-size:22px}
+.brand{font-family:"Fraunces",serif;font-weight:700;font-size:22px}
 .brand span{color:var(--accent)}
 .status{font-size:13px;padding:4px 10px;border-radius:999px;background:var(--soft);color:var(--muted)}
 .status.ok{color:var(--ok)} .status.err{color:var(--err)}
@@ -28,7 +28,7 @@ nav button{border:1px solid var(--line);background:var(--card);color:var(--ink);
 nav button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 main{max-width:1180px;margin:0 auto;padding:20px 16px 60px}
 section.view{display:none} section.view.on{display:block}
-h2{font-family:"Noto Serif Thai",serif;font-size:26px;margin:4px 0}
+h2{font-family:"Fraunces",serif;font-size:26px;margin:4px 0}
 .sub{color:var(--muted);margin:0 0 18px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
 .seg{display:inline-flex;background:var(--soft);border-radius:999px;padding:4px;gap:4px}
@@ -80,24 +80,24 @@ select{width:100%;padding:9px 12px;border-radius:10px;border:1px solid var(--lin
 </head>
 <body>
 <header><div class="bar">
-  <div class="brand">ห้องลองชุด <span>AI</span></div>
-  <span class="status" id="status">กำลังเช็กโมเดล…</span>
+  <div class="brand">AI Fitting <span>Room</span></div>
+  <span class="status" id="status">Checking model…</span>
   <nav>
-    <button data-v="wardrobe" class="on">① คลังเสื้อผ้า</button>
-    <button data-v="tryon">② ลองชุด</button>
+    <button data-v="wardrobe" class="on">① Wardrobe</button>
+    <button data-v="tryon">② Try On</button>
   </nav>
 </div></header>
 
 <main>
 <section class="view on" id="v-wardrobe">
-  <h2>คลังเสื้อผ้า</h2>
-  <p class="sub">อัพรูปเสื้อผ้าแยกตามเพศและประเภท · รูปถูกเก็บในโฟลเดอร์ <code>wardrobe/</code> ของแอป</p>
+  <h2>Wardrobe</h2>
+  <p class="sub">Upload clothing photos by gender and category · Photos are stored in the app’s <code>wardrobe/</code> folder</p>
   <div class="card">
     <div class="seg" id="w-gender"></div>
     <div class="chips" id="w-cats"></div>
     <div class="drop" id="w-drop">
-      <strong>คลิกหรือลากรูปมาวางที่นี่</strong><br>
-      <span id="w-drop-label"></span> · เลือกได้หลายรูป
+      <strong>Click or drop images here</strong><br>
+      <span id="w-drop-label"></span> · multiple files allowed
     </div>
     <input type="file" id="w-file" accept="image/*" multiple hidden>
     <div class="grid" id="w-grid"></div>
@@ -105,54 +105,54 @@ select{width:100%;padding:9px 12px;border-radius:10px;border:1px solid var(--lin
 </section>
 
 <section class="view" id="v-tryon">
-  <h2>ลองชุด</h2>
-  <p class="sub">อัพรูปคน เลือกเพศ เลือกเสื้อผ้า แล้วให้ AI (FASHN VTON ในเครื่อง) สร้างภาพตอนสวมใส่</p>
+  <h2>Try On</h2>
+  <p class="sub">Upload a person photo, choose gender and clothes, and let the local AI (FASHN VTON) show how they look</p>
   <div class="tryon">
     <div class="card">
-      <div class="step">ขั้นที่ 1</div>
-      <strong>รูปคน</strong>
+      <div class="step">STEP 1</div>
+      <strong>Person photo</strong>
       <div class="person" id="p-box"><div class="drop" id="p-drop" style="border:0;background:transparent">
-        <strong>คลิกหรือลากรูปคนมาวาง</strong><br>แนะนำรูปเต็มตัว ยืนตรง แสงชัด
+        <strong>Click or drop a person photo</strong><br>Best: full body, standing straight, good lighting
       </div></div>
       <input type="file" id="p-file" accept="image/*" hidden>
-      <button class="btn ghost" id="p-change" style="margin-top:10px" hidden>เปลี่ยนรูป</button>
-      <div class="step" style="margin-top:18px">ขั้นที่ 2</div>
-      <strong>เพศ</strong><br>
+      <button class="btn ghost" id="p-change" style="margin-top:10px" hidden>Change photo</button>
+      <div class="step" style="margin-top:18px">STEP 2</div>
+      <strong>Gender</strong><br>
       <div class="seg" id="t-gender" style="margin-top:8px"></div>
     </div>
 
     <div class="card">
-      <div class="step">ขั้นที่ 3</div>
-      <strong>เลือกเสื้อผ้า</strong>
-      <div class="hint">หมวดละ 1 ชิ้น · ท่อนล่างเลือกได้อย่างเดียว · เลือกเดรสจะไม่ใช้เสื้อและท่อนล่าง</div>
+      <div class="step">STEP 3</div>
+      <strong>Choose clothes</strong>
+      <div class="hint">One item per category · only one bottom · a dress replaces top and bottom</div>
       <div id="t-cats"></div>
       <div class="two">
         <div>
-          <label class="f" for="o-type">รูปเสื้อผ้าเป็นแบบ</label>
+          <label class="f" for="o-type">Clothing photo type</label>
           <select id="o-type">
-            <option value="flat-lay">วางพื้น / แขวน (ไม่มีคนใส่)</option>
-            <option value="model">มีนายแบบ/นางแบบใส่อยู่</option>
+            <option value="flat-lay">Flat-lay / hanger (no model)</option>
+            <option value="model">Worn by a model</option>
           </select>
         </div>
         <div>
-          <label class="f" for="o-steps">คุณภาพ</label>
+          <label class="f" for="o-steps">Quality</label>
           <select id="o-steps">
-            <option value="20">เร็ว (20 steps)</option>
-            <option value="30" selected>มาตรฐาน (30 steps)</option>
-            <option value="40">ละเอียด (40 steps)</option>
+            <option value="20">Fast (20 steps)</option>
+            <option value="30" selected>Standard (30 steps)</option>
+            <option value="40">Detailed (40 steps)</option>
           </select>
         </div>
       </div>
     </div>
 
     <div class="card result">
-      <div class="step">ขั้นที่ 4</div>
-      <strong>ผลลัพธ์</strong>
-      <div class="out" id="out">ภาพที่ AI สร้างจะแสดงที่นี่</div>
-      <button class="btn" id="gen" disabled>✨ สร้างภาพลองชุด</button>
-      <a class="btn ghost" id="dl" style="margin-top:8px" hidden download>ดาวน์โหลดภาพ</a>
+      <div class="step">STEP 4</div>
+      <strong>Result</strong>
+      <div class="out" id="out">The AI-generated image will appear here</div>
+      <button class="btn" id="gen" disabled>✨ Generate try-on</button>
+      <a class="btn ghost" id="dl" style="margin-top:8px" hidden download>Download image</a>
       <div class="msg" id="msg"></div>
-      <div class="hint" style="margin-top:12px">ภาพล่าสุด (เก็บในโฟลเดอร์ <code>results/</code>)</div>
+      <div class="hint" style="margin-top:12px">Recent images (saved in <code>results/</code>)</div>
       <div class="hist" id="hist"></div>
     </div>
   </div>
@@ -171,9 +171,9 @@ async function loadClothes(){ clothes = await api('/api/clothes'); }
 
 /* status */
 async function poll(){ try{ const h = await api('/api/health'); const s=$('#status');
-  if(h.status==='ready'){ s.className='status ok'; s.textContent='● AI พร้อม ('+h.device+')'; return; }
-  if(h.status==='error'){ s.className='status err'; s.textContent='● โหลดโมเดลไม่สำเร็จ'; s.title=h.error; return; }
-  s.className='status'; s.textContent='● กำลังโหลดโมเดล…'; }catch{ $('#status').textContent='● ติดต่อเซิร์ฟเวอร์ไม่ได้'; }
+  if(h.status==='ready'){ s.className='status ok'; s.textContent='● AI ready ('+h.device+')'; return; }
+  if(h.status==='error'){ s.className='status err'; s.textContent='● Model failed to load'; s.title=h.error; return; }
+  s.className='status'; s.textContent='● Loading model…'; }catch{ $('#status').textContent='● Cannot reach server'; }
   setTimeout(poll, 3000); }
 
 /* nav */
@@ -195,20 +195,20 @@ function renderWardrobe(){
   for(const [k,l] of CATS[wG].items){ const n=clothes.filter(c=>c.gender===wG&&c.cat===k).length;
     const b=document.createElement('button'); b.className='chip'+(k===wC?' on':''); b.innerHTML=`${l}<span class="n">${n}</span>`;
     b.onclick=()=>{wC=k;renderWardrobe();}; cats.appendChild(b); }
-  $('#w-drop-label').textContent=`เพิ่มใน ${CATS[wG].label} › ${CATS[wG].items.find(i=>i[0]===wC)[1]}`;
+  $('#w-drop-label').textContent=`Add to ${CATS[wG].label} › ${CATS[wG].items.find(i=>i[0]===wC)[1]}`;
   const grid=$('#w-grid'); grid.innerHTML='';
   const list=clothes.filter(c=>c.gender===wG&&c.cat===wC);
-  if(!list.length){ grid.innerHTML='<div class="empty" style="grid-column:1/-1">ยังไม่มีรูปในหมวดนี้</div>'; return; }
+  if(!list.length){ grid.innerHTML='<div class="empty" style="grid-column:1/-1">No photos in this category yet</div>'; return; }
   for(const c of list){ const d=document.createElement('div'); d.className='item';
-    d.innerHTML='<img alt="" loading="lazy"><button class="del" title="ลบ">×</button>'; d.querySelector('img').src=c.url;
-    d.querySelector('.del').onclick=async()=>{ if(!confirm('ลบรูปนี้?'))return; await api('/api/clothes/'+c.id,{method:'DELETE'});
+    d.innerHTML='<img alt="" loading="lazy"><button class="del" title="Delete">×</button>'; d.querySelector('img').src=c.url;
+    d.querySelector('.del').onclick=async()=>{ if(!confirm('Delete this photo?'))return; await api('/api/clothes/'+c.id,{method:'DELETE'});
       sel.forEach((v,k)=>{if(v===c.id)sel.delete(k)}); await loadClothes(); renderWardrobe(); };
     grid.appendChild(d); }
 }
 wireDrop($('#w-drop'), $('#w-file'), async files=>{
   const fd=new FormData(); fd.append('gender',wG); fd.append('cat',wC);
   files.filter(f=>f.type.startsWith('image/')).forEach(f=>fd.append('files',f));
-  $('#w-drop-label').textContent='กำลังอัพโหลด…';
+  $('#w-drop-label').textContent='Uploading…';
   try{ await api('/api/clothes',{method:'POST',body:fd}); }catch(e){ alert(e.message); }
   await loadClothes(); renderWardrobe(); });
 
@@ -220,9 +220,9 @@ function renderTryon(){
   for(const [k,l] of CATS[tG].items){
     const list=clothes.filter(c=>c.gender===tG&&c.cat===k);
     const box=document.createElement('div'); box.className='cat';
-    box.innerHTML=`<h4>${l}<small>${sel.has(k)?'เลือกแล้ว · คลิกซ้ำเพื่อยกเลิก':''}</small></h4><div class="row"></div>`;
+    box.innerHTML=`<h4>${l}<small>${sel.has(k)?'Selected · click again to remove':''}</small></h4><div class="row"></div>`;
     const row=box.querySelector('.row');
-    if(!list.length) row.innerHTML='<span class="none">ยังไม่มีรูป — เพิ่มได้ที่ ① คลังเสื้อผ้า</span>';
+    if(!list.length) row.innerHTML='<span class="none">No photos yet — add some in ① Wardrobe</span>';
     for(const c of list){ const b=document.createElement('button'); b.className='pick'+(sel.get(k)===c.id?' on':'');
       b.innerHTML='<img alt="" loading="lazy">'; b.querySelector('img').src=c.url; b.onclick=()=>pick(k,c.id); row.appendChild(b); }
     wrap.appendChild(box);
@@ -252,12 +252,12 @@ $('#gen').onclick=async()=>{
   const fd=new FormData(); fd.append('person',personFile); fd.append('gender',tG);
   fd.append('items', JSON.stringify([...sel.values()])); fd.append('photo_type',$('#o-type').value); fd.append('steps',$('#o-steps').value);
   const msg=$('#msg'); msg.className='msg'; msg.textContent='';
-  $('#out').innerHTML=`<div><div class="spin"></div>AI กำลังสร้างภาพ ${sel.size>1?'('+sel.size+' ชิ้น ทำทีละชิ้น) ':''}…<br><span class="hint">บน Mac อาจใช้เวลาหลายนาที</span></div>`;
+  $('#out').innerHTML=`<div><div class="spin"></div>Generating ${sel.size>1?'('+sel.size+' items, one at a time) ':''}…<br><span class="hint">This can take a few minutes without a fast GPU</span></div>`;
   $('#dl').hidden=true; busy=true; renderTryon(); const t0=Date.now();
-  const tick=setInterval(()=>{ msg.textContent='ผ่านไป '+Math.round((Date.now()-t0)/1000)+' วินาที'; },1000);
+  const tick=setInterval(()=>{ msg.textContent='Elapsed: '+Math.round((Date.now()-t0)/1000)+' s'; },1000);
   try{ const r=await api('/api/tryon',{method:'POST',body:fd}); showResult(r.url);
-    msg.className='msg ok'; msg.textContent=`สร้างภาพสำเร็จใน ${r.seconds} วินาที (${r.device})`; loadHist(); }
-  catch(e){ $('#out').textContent='สร้างภาพไม่สำเร็จ'; msg.className='msg err'; msg.textContent=e.message; }
+    msg.className='msg ok'; msg.textContent=`Done in ${r.seconds} s (${r.device})`; loadHist(); }
+  catch(e){ $('#out').textContent='Generation failed'; msg.className='msg err'; msg.textContent=e.message; }
   finally{ clearInterval(tick); busy=false; renderTryon(); if(msg.className==='msg') msg.textContent=''; }
 };
 
